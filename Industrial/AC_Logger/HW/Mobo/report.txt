@@ -1,0 +1,5 @@
+Info: Processing symbol 'J1:'.
+Error: Cannot add J1 (no footprint assigned).
+
+
+Info: Total warnings: 0, errors: 1.
