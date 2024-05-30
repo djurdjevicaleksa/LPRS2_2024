@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name For_Rasterboard)(type KiCad)(uri ${KIPRJMOD}/../../../../Common/HW/For_Rasterboard.pretty)(options "")(descr ""))
+)
