@@ -1,0 +1,6 @@
+SD Kartica je po otvaranju pozicionirana na boot/
+Ako se odmah nakon otvaranja pozove mkdir, novi folder ce biti u boot/ folderu
+
+RTC radi
+SD radi
+Shield radi
