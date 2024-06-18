@@ -2,4 +2,5 @@
 fp-info-cache
 # KiCAD 6
 *-backups/
+rtc_and_sd_tests/
 \#auto_saved_files#
