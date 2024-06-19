@@ -4,4 +4,4 @@ exit 0
 
 ./waf configure
 
-./waf build size upload --app=11 --port=/dev/ttyUSB1
+./waf build size upload --app=01 --port=/dev/ttyUSB0

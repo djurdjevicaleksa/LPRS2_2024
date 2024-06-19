@@ -24,7 +24,7 @@ void setup()
   TIMSK1 |= (1<<OCIE1A); // IRQ      //TIMSK1- timer interrupt mask register
   sei();  //set global interrupt enabled
   
-  Serial.begin(1000000);
+  Serial.begin(115200);
 }
 
 ISR(TIMER1_COMPA_vect)
@@ -51,6 +51,9 @@ void loop() {
     }
     
     pack.id++;
-    Serial.write((uint8_t*)&pack, sizeof(sample_packet));
+    //Serial.write((uint8_t*)&pack, sizeof(sample_packet));
+
+    Serial.write((uint8_t*)&pack.val_array[0], sizeof(pack.val_array[0]));
+  
   }
 }

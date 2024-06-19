@@ -9,7 +9,7 @@
 ###############################################################################
 
 import avrwaf
-from avrwaf import build_context, after_cmd
+from common_waf import build_context, after_cmd
 
 from os.path import join
 
@@ -22,7 +22,7 @@ import re
 ###############################################################################
 
 one_file_fws = [
-	'01_adc_logger_slow.cpp',
+	#'01_adc_logger_slow.cpp',
 	'10_adc_cycle.cpp',
 ]
 
@@ -94,6 +94,7 @@ def configure(cfg):
 		cfg.env.PROGRAMMER_PORT = cfg.options.port
 	
 	cfg.env.OPT = '-Os'
+	
 	# Tools.
 	cfg.load('arduino', tooldir = avrwaf.location)
 	cfg.load('avr', tooldir = avrwaf.location)
@@ -106,7 +107,9 @@ def build(bld):
 	ard_inc = [
 		bld.env.ARDUINO_CORE,
 		bld.env.ARDUINO_VARIANT
+		#bld.bldnode.find_node(".")
 	]
+	print(ard_inc)
 	bld.stlib(
 		target = 'Arduino_Core',
 		source = ard_src.ant_glob('*.c') + ard_src.ant_glob('*.cpp'),

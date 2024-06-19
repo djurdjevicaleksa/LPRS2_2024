@@ -76,6 +76,7 @@ typedef struct {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
 #if __AVR_ATtiny13A__
 
 typedef union {
@@ -579,6 +580,7 @@ typedef struct {
 	unsigned adcxd : 5;
 	unsigned _res : 2;
 } bf_didr0;
+
 #define didr0 (*((volatile bf_didr0*)(&DIDR0)))
 
 
@@ -854,6 +856,102 @@ typedef union {
 } bf_acmp;
 #define acmp (*((volatile bf_acmp*)(&ACSR)))
 
+
+typedef union {
+
+	struct {
+		u8 _res0[1];
+		u8 didr_0;
+		u8 _res1[1];
+		u8 admux;
+		u8 adcsrb;
+		u8 adcsra;
+		u16 adcw;
+	} r;
+
+	struct {
+
+		u8 _res0[1];
+
+		struct {
+			unsigned adcxd : 6;
+			unsigned	   : 2;
+		} didr_0;
+
+		u8 _res1[1];
+		
+		struct {
+			unsigned mux   : 4;
+			unsigned       : 1;
+			unsigned adlar : 1;
+			unsigned refs  : 2;
+		} admux;
+
+		struct {
+			unsigned adts  : 3;
+			unsigned       : 3;
+			unsigned acme  : 1;
+			unsigned       : 1;
+		} adcsrb;
+
+		struct {
+			unsigned adps  : 3;
+			unsigned adie  : 1;
+			unsigned adif  : 1;
+			unsigned adate : 1;
+			unsigned adsc  : 1;
+			unsigned aden  : 1;
+		} adcsra;
+
+		struct {
+			unsigned adch  : 8;
+			unsigned adcl  : 8;
+		} adcw;
+
+	} g;
+
+	struct {
+		unsigned _res0 : 8;
+
+		//struct {
+			unsigned adcxd : 6;
+			unsigned	   : 2;
+		//} didr0;
+
+		unsigned _res1 : 8;
+		
+		//struct {
+			unsigned mux   : 4;
+			unsigned       : 1;
+			unsigned adlar : 1;
+			unsigned refs  : 2;
+		//} admux;
+
+		//struct {
+			unsigned adts  : 3;
+			unsigned       : 3;
+			unsigned acme  : 1;
+			unsigned       : 1;
+		//} adcsrb;
+
+		//struct {
+			unsigned adps  : 3;
+			unsigned adie  : 1;
+			unsigned adif  : 1;
+			unsigned adate : 1;
+			unsigned adsc  : 1;
+			unsigned aden  : 1;
+		//} adcsra;
+
+		//struct {
+			unsigned adch  : 8;
+			unsigned adcl  : 8;
+		//} adcw;
+		
+	} f;
+} bf_adc;
+
+#define adc (*((volatile bf_adc*)(&DIDR1)))
 
 #endif
 

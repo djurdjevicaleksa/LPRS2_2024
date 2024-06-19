@@ -5,20 +5,11 @@
 
 #include "avr_io_bitfields.h"
 
-#define MAGIC 0xBABADEDA
-
-struct sample_packet
-{
-	uint32_t magic;
-	uint32_t id;
-	uint16_t val_array[6];
-	uint8_t err;
-
-} __attribute__((packed));
+#include "packets.hpp"
 
 volatile bool to_send = false;
 volatile u8 mux_select = 0;
-volatile sample_packet pack = {
+volatile smpl_pkg pkg = {
 	.magic = MAGIC,
 	.id = 0,
 	.val_array = {0},
@@ -59,15 +50,11 @@ ISR(TIMER1_COMPA_vect) {
 	// Take prev sample.
 	u16 sample = adc.r.adcw;
 
-	pack.val_array[mux_select] = sample;
+	pkg.val_array[mux_select] = sample;
 
-	// Steer to next.
-	mux_select++;
-	set_adc_mux(mux_select);
-	if (mux_select == 6){
-		mux_select = 0;
-		to_send = true;
+	// Steer to nexmux_selecttrue;
 	}
+	set_adc_mux(mux_select);
 
 	// Start new sample.
 	adc.f.adsc = 1;
@@ -75,12 +62,12 @@ ISR(TIMER1_COMPA_vect) {
 
 void setup() {
 
-	Serial.begin(1000000);
+	Serial.begin(115200);
 
 	// ADC setup.
 
 	// Disable digital buffer on analog input.
-	adc.r.didr = 0xff;
+	adc.r.didr_0 = 0xff;
 
 	set_adc_mux(mux_select);
 
@@ -100,8 +87,7 @@ void setup() {
 	});
 
 
-#if 0
-	Serial.begin(1000000);
+#if 1
 	print_reg("ADCSRA", ADCSRA);
 	print_reg("ADMUX", ADMUX);
 	print_reg("ADCSRB", ADCSRB);
@@ -131,13 +117,17 @@ void loop() {
 	if(to_send){
 		to_send = false;
 
-		pack.err = false;
+		pkg.err = false;
 
 		if(to_send){
-			pack.err = true;
+			pkg.err = true;
 		}
 
-		pack.id++;
-		Serial.write((uint8_t *)&pack, sizeof(sample_packet));
+		pkg.id++;
+
+		uint16_t reading = pkg.val_array[0];
+		Serial.println(reading);
+
+		//Serial.write((uint8_t *)&pkg, sizeof(pkg));
 	}
 }
