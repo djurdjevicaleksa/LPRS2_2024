@@ -2,13 +2,14 @@
 // - Shield: AC logger
 
 #include <Arduino.h>
-
+#include <stdlib.h>
 #include "avr_io_bitfields.h"
 
 #include "packets.hpp"
 
 volatile bool to_send = false;
 volatile u8 mux_select = 0;
+
 volatile smpl_pkg pkg = {
 	.magic = MAGIC,
 	.id = 0,
@@ -52,8 +53,16 @@ ISR(TIMER1_COMPA_vect) {
 
 	pkg.val_array[mux_select] = sample;
 
+	mux_select++;
+
 	// Steer to nexmux_selecttrue;
+	if (mux_select == 6){
+		mux_select = 0;
+		to_send = true;
 	}
+
+	delay(10);
+	
 	set_adc_mux(mux_select);
 
 	// Start new sample.
@@ -87,7 +96,7 @@ void setup() {
 	});
 
 
-#if 1
+#if 0
 	print_reg("ADCSRA", ADCSRA);
 	print_reg("ADMUX", ADMUX);
 	print_reg("ADCSRB", ADCSRB);
@@ -125,9 +134,44 @@ void loop() {
 
 		pkg.id++;
 
-		uint16_t reading = pkg.val_array[0];
-		Serial.println(reading);
+		Serial.write("[0] = ");
+		String data0 = String(pkg.val_array[0]);
+		Serial.println(data0);
+		Serial.write("\n");
+
+		Serial.write("[1] = ");
+		String data1 = String(pkg.val_array[1]);
+		Serial.println(data1);
+		Serial.write("\n");
+
+		Serial.write("[2] = ");
+		String data2 = String(pkg.val_array[2]);
+		Serial.println(data2);
+		Serial.write("\n");
+
+		Serial.write("[3] = ");
+		String data3 = String(pkg.val_array[3]);
+		Serial.println(data3);
+		Serial.write("\n");
+
+		Serial.write("[4] = ");
+		String data4 = String(pkg.val_array[4]);
+		Serial.println(data4);
+		Serial.write("\n");
+
+		Serial.write("[5] = ");
+		String data5 = String(pkg.val_array[5]);
+		Serial.println(data5);
+		Serial.write("\n");
+
+		
+
+		delay(1);
+		//uint16_t reading = pkg.val_array[0];
+		//Serial.write("aleksa\n");
 
 		//Serial.write((uint8_t *)&pkg, sizeof(pkg));
+
 	}
+	//Serial.write("LOOP");
 }

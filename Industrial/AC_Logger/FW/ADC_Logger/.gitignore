@@ -2,3 +2,4 @@
 waf3*/
 .lock-waf*
 build/
+.vscode/

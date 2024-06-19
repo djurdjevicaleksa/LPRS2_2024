@@ -1,4 +1,3 @@
-
 #ifndef AVR_IO_BITFIELDS_H
 #define AVR_IO_BITFIELDS_H
 
@@ -60,7 +59,6 @@ typedef struct {
 #define ddrb (*((volatile bf_8b*)(&DDRB)))
 #define ddrc (*((volatile bf_8b*)(&DDRC)))
 #define ddrd (*((volatile bf_8b*)(&DDRD)))
-
 // Output Port
 #define porta (*((volatile bf_8b*)(&PORTA)))
 #define portb (*((volatile bf_8b*)(&PORTB)))
@@ -543,9 +541,9 @@ typedef union {
 } bf_uart;
 
 #define uart (*((volatile bf_uart*)(&UBRRL)))
-
 // Arduino UNO
 #elif __AVR_ATmega328P__
+
 
 //TODO To adc struct
 /*
@@ -828,7 +826,7 @@ typedef union {
 		u8 adcsra;
 		u8 adcsrb;
 		u8 _res_r1[3];
-		u8 didr1;
+		u8 didr_1;
 	};
 	struct {
 		// acsr
@@ -857,6 +855,8 @@ typedef union {
 #define acmp (*((volatile bf_acmp*)(&ACSR)))
 
 
+//OVDE POCEO
+/*
 typedef union {
 
 	struct {
@@ -952,6 +952,142 @@ typedef union {
 } bf_adc;
 
 #define adc (*((volatile bf_adc*)(&DIDR1)))
+
+*/
+//OVDE ZAVRSIO
+
+typedef union {
+
+	struct {
+
+		u16 adcw;
+		u8  adcsra;
+		u8  adcsrb;
+		u8  admux;
+		u8  _reserved;
+		u8  didr_0;
+		u8  didr_1;
+
+	} r;
+
+	struct {
+		
+		struct {
+
+			unsigned adcl	: 8;
+			unsigned adch	: 8;
+
+		} adcw;
+
+		struct {
+
+			unsigned adps	: 3;
+			unsigned adie   : 1;
+			unsigned adif	: 1;
+			unsigned adate	: 1;
+			unsigned adsc	: 1;
+			unsigned aden	: 1;
+
+		} adcsra;
+
+		struct {
+
+			unsigned adts	: 3;
+			unsigned 		: 3;
+			unsigned acme 	: 1;
+			unsigned 		: 1;
+
+		} adcsrb;
+
+		struct {
+
+			unsigned mux	: 4;
+			unsigned 		: 1;
+			unsigned adlar	: 1;
+			unsigned refs	: 2;
+
+		} admux;
+
+		struct {
+
+			unsigned _reserved	: 8;
+		} _reserved;
+
+		struct {
+
+			unsigned adcxd	: 6;
+			unsigned 		: 2;
+
+		} didr_0;
+
+		struct {
+
+			unsigned ainxd	: 2;
+			unsigned 		: 6;
+
+		} didr_1;
+
+	} g;
+
+	struct {
+
+		//struct {
+
+			unsigned adcl	: 8;
+			unsigned adch	: 8;
+			 
+		//} adcw;
+
+		//struct {
+
+			unsigned adps	: 3;
+			unsigned adie   : 1;
+			unsigned adif	: 1;
+			unsigned adate	: 1;
+			unsigned adsc	: 1;
+			unsigned aden	: 1;
+
+		//} adcsra;
+
+		//struct {
+
+			unsigned adts	: 3;
+			unsigned 		: 3;
+			unsigned acme 	: 1;
+			unsigned 		: 1;
+
+		//} adcsrb;
+
+		////struct {
+
+			unsigned mux	: 4;
+			unsigned 		: 1;
+			unsigned adlar	: 1;
+			unsigned refs	: 2;
+
+		//} admux;
+
+			unsigned _reserved	: 8;
+
+		//struct {
+
+			unsigned adcxd	: 6;
+			unsigned 		: 2;
+
+		//} didr_0;
+
+		//struct {
+
+			unsigned ainxd	: 2;
+			unsigned 		: 6;
+
+		//} didr_1;
+
+	} f;
+	
+} bf_adc;
+
+#define adc (*((volatile bf_adc*)(&ADCL)))
 
 #endif
 
