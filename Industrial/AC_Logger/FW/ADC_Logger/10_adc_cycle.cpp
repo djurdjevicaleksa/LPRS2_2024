@@ -15,8 +15,6 @@
 volatile bool to_send = false;
 volatile u8 mux_select = 0;
 
-File sd_fd;
-
 virtuabotixRTC rtc1(6, 7, 8);
 
 volatile smpl_pkg pkg = {
@@ -136,9 +134,13 @@ void setup() {
 		while(1) {}
 	}
 
-	SD.mkdir("AC_LOGGER");
-
 	rtc1.setDS1302Time(0, 11, 14, 4, 20, 6, 2024);
+
+	if(!SD.mkdir("aclogger"))
+	{
+		Serial.println("Couldn't create a folder to store the log file.\n");
+	}
+	
 }
 
 void loop() {
@@ -156,9 +158,6 @@ void loop() {
 
 		pkg.id++;
 
-
-		
-
 		pkg.data.timestamp[0] = rtc1.seconds;
 		pkg.data.timestamp[1] = rtc1.minutes;
 		pkg.data.timestamp[2] = rtc1.hours;
@@ -172,8 +171,9 @@ void loop() {
 			*/
 
 			String entry = "";
-			entry += String(pkg.data.timestamp[0]) + '\t' + 
-					 String(pkg.data.timestamp[0])+ '\t' + 
+			entry += String(pkg.id) + '\t' +
+					 String(pkg.data.timestamp[0]) + '\t' + 
+					 String(pkg.data.timestamp[1])+ '\t' + 
 					 String(pkg.data.timestamp[2]) + '\t' +
 					 String(pkg.data.timestamp[3]) + '\t' + 
 					 String(pkg.data.timestamp[4]) + '\t' +
@@ -184,60 +184,20 @@ void loop() {
 					 String(pkg.data.val_array[4]) + '\t' +
 					 String(pkg.data.val_array[5]);
 
-			Serial.println(entry);
-
-			sd_fd = SD.open("AC_LOGGER/log.txt", FILE_WRITE);
-
+			
+			File sd_fd = SD.open("aclogger/log.txt", FILE_WRITE);
+		
 			if(sd_fd) {
 				
 				sd_fd.println(entry);
 				sd_fd.close();
+				Serial.println(entry);
 
 			}
 			else {
 
 				Serial.println("Couldn't open log file.\n");
-			}
-
-
-
+			}	
 		}
-
-
-
-		/*Serial.write("[1] = ");
-		String data1 = String(pkg.val_array[1]);
-		Serial.println(data1);
-		Serial.write("\n");
-
-		Serial.write("[2] = ");
-		String data2 = String(pkg.val_array[2]);
-		Serial.println(data2);
-		Serial.write("\n");
-
-		Serial.write("[3] = ");
-		String data3 = String(pkg.val_array[3]);
-		Serial.println(data3);
-		Serial.write("\n");
-
-		Serial.write("[4] = ");
-		String data4 = String(pkg.val_array[4]);
-		Serial.println(data4);
-		Serial.write("\n");
-
-		Serial.write("[5] = ");
-		String data5 = String(pkg.val_array[5]);
-		Serial.println(data5);
-		Serial.write("\n");*/
-
-		
-
-		delay(1);
-		//uint16_t reading = pkg.val_array[0];
-		//Serial.write("aleksa\n");
-
-		//Serial.write((uint8_t *)&pkg, sizeof(pkg));
-
 	}
-	//Serial.write("LOOP");
 }
