@@ -5,6 +5,7 @@
 
 import os
 import waflib
+
 ###############################################################################
 
 location = os.path.abspath(os.path.dirname(__file__))

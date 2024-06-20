@@ -9,6 +9,7 @@
 ###############################################################################
 
 import avrwaf
+import avrwaf.arduino
 from common_waf import build_context, after_cmd
 
 from os.path import join
@@ -23,7 +24,7 @@ import re
 
 one_file_fws = [
 	#'01_adc_logger_slow.cpp',
-	'10_adc_cycle.cpp',
+	'10_adc_cycle.cpp'
 ]
 
 
@@ -76,24 +77,15 @@ def options(opt):
 		help = 'Programmer port i.e. dev file (like /dev/ttyUSB)'
 	)
 	
-	# Project specific.
-	opt.add_option(
-		'--wavgat',
-		dest = 'wavgat',
-		action = 'store_true',
-		default = False,
-		help = 'WAVGAT version of Arduino'
-	)
 
 def configure(cfg):
-	if cfg.options.wavgat:
-		cfg.env.ARDUINO_BOARD = 'WAVGAT UNO R3'
-	else:
-		cfg.env.ARDUINO_BOARD = 'Arduino Uno'
+	cfg.env.ARDUINO_BOARD = 'Arduino Uno'
 	if cfg.options.port:
 		cfg.env.PROGRAMMER_PORT = cfg.options.port
 	
 	cfg.env.OPT = '-Os'
+
+	cfg.env.ARDUINO_LIBS = ['SD', 'SPI']
 	
 	# Tools.
 	cfg.load('arduino', tooldir = avrwaf.location)
@@ -102,20 +94,9 @@ def configure(cfg):
 
 
 
+
 def build(bld):
-	ard_src = bld.root.find_node(bld.env.ARDUINO_CORE)
-	ard_inc = [
-		bld.env.ARDUINO_CORE,
-		bld.env.ARDUINO_VARIANT
-		#bld.bldnode.find_node(".")
-	]
-	print(ard_inc)
-	bld.stlib(
-		target = 'Arduino_Core',
-		source = ard_src.ant_glob('*.c') + ard_src.ant_glob('*.cpp'),
-		includes = ard_inc,
-		export_includes = ard_inc
-	)
+	avrwaf.arduino.build(bld)
 	
 	for code_file in one_file_fws:
 		name = os.path.splitext(code_file)[0]
@@ -123,7 +104,7 @@ def build(bld):
 			target = name + '.elf',
 			features = 'avr-hex',
 			use = 'Arduino_Core',
-			source = [code_file]
+			source = [code_file, 'virtuabotixRTC.cpp']
 		)
 		#TODO Move to feature.
 		bld(
@@ -131,6 +112,10 @@ def build(bld):
 			target = name + '.asm',
 			source = name + '.elf'
 		)
+	
+	
+
+	
 
 def expand_app(app):
 	sufixes = ['', '.exe', '.elf']
