@@ -15,8 +15,6 @@
 volatile bool to_send = false;
 volatile u8 mux_select = 0;
 
-File sd_fd;
-
 virtuabotixRTC rtc1(6, 7, 8);
 
 volatile smpl_pkg pkg = {
@@ -136,9 +134,13 @@ void setup() {
 		while(1) {}
 	}
 
-	SD.mkdir("AC_LOGGER");
-
 	rtc1.setDS1302Time(0, 11, 14, 4, 20, 6, 2024);
+
+	if(!SD.mkdir("aclogger"))
+	{
+		Serial.println("Couldn't create a folder to store the log file.\n");
+	}
+	
 }
 
 void loop() {
@@ -172,8 +174,9 @@ void loop() {
 			*/
 
 			String entry = "";
-			entry += String(pkg.data.timestamp[0]) + '\t' + 
-					 String(pkg.data.timestamp[0])+ '\t' + 
+			entry += String(pkg.id) + '\t' +
+					 String(pkg.data.timestamp[0]) + '\t' + 
+					 String(pkg.data.timestamp[1])+ '\t' + 
 					 String(pkg.data.timestamp[2]) + '\t' +
 					 String(pkg.data.timestamp[3]) + '\t' + 
 					 String(pkg.data.timestamp[4]) + '\t' +
@@ -184,14 +187,15 @@ void loop() {
 					 String(pkg.data.val_array[4]) + '\t' +
 					 String(pkg.data.val_array[5]);
 
-			Serial.println(entry);
+			
 
-			sd_fd = SD.open("AC_LOGGER/log.txt", FILE_WRITE);
-
+			File sd_fd = SD.open("aclogger/log.txt", FILE_WRITE);
+		
 			if(sd_fd) {
 				
 				sd_fd.println(entry);
 				sd_fd.close();
+				Serial.println(entry);
 
 			}
 			else {
@@ -199,8 +203,7 @@ void loop() {
 				Serial.println("Couldn't open log file.\n");
 			}
 
-
-
+			
 		}
 
 
