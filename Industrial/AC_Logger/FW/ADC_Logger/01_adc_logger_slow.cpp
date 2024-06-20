@@ -9,7 +9,7 @@ sample_packet pack =
   .id = 0
 };
 
-volatile bool sample = false;
+volatile bool sampale = false;
 
 void setup()
 {
