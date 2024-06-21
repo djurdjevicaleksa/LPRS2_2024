@@ -11,9 +11,15 @@
 #include "packets.hpp"
 
 #define CS 10
+#define PKG_LEN 10
 
 volatile bool to_send = false;
 volatile u8 mux_select = 0;
+
+//String entries[PKG_LEN];
+volatile int entry_select = 0;
+
+String entry = "";
 
 virtuabotixRTC rtc1(6, 7, 8);
 
@@ -22,27 +28,6 @@ volatile smpl_pkg pkg = {
 	.id = 0,
 	.data = {0}
 };
-
-static void print_reg(const char *name, u8 r) {
-	Serial.print(name);
-	Serial.print(" = 0b");
-	for (int i = 7; i >= 0; i--)
-	{
-		if ((r >> i) & 1)
-		{
-			Serial.print('1');
-		}
-		else
-		{
-			Serial.print('0');
-		}
-		if (i == 4)
-		{
-			Serial.print('_');
-		}
-	}
-	Serial.println();
-}
 
 static void set_adc_mux(u8 mux)
 {
@@ -55,6 +40,8 @@ static void set_adc_mux(u8 mux)
 
 ISR(TIMER1_COMPA_vect) {
 	// Take prev sample.
+	//Serial.println(a1);
+	//a1++;
 	u16 sample = adc.r.adcw;
 
 	pkg.data.val_array[mux_select] = sample;
@@ -66,11 +53,11 @@ ISR(TIMER1_COMPA_vect) {
 		mux_select = 0;
 		to_send = true;
 	}
-
-	delay(10);
 	
 	set_adc_mux(mux_select);
 
+	delay(20);
+	
 	// Start new sample.
 	adc.f.adsc = 1;
 }
@@ -123,7 +110,7 @@ void setup() {
 
 	// output compare register, max Timer/Counter value
 	// TODO Defines and explanation for these numbers.
-	OCR1A = F_CPU / (50 * 32 * 2) * 8;
+	OCR1A = (F_CPU / (50 * 32 * 2) * 8);
 
 	TIMSK1 |= (1 << OCIE1A); // IRQ      //TIMSK1- timer interrupt mask register
 	sei();					 // set global interrupt enabled
@@ -134,12 +121,14 @@ void setup() {
 		while(1) {}
 	}
 
-	rtc1.setDS1302Time(0, 11, 14, 4, 20, 6, 2024);
+	//rtc1.setDS1302Time(30, 15, 13, 4, 20, 6, 2024);
 
 	if(!SD.mkdir("aclogger"))
 	{
 		Serial.println("Couldn't create a folder to store the log file.\n");
 	}
+
+	
 	
 }
 
@@ -148,18 +137,13 @@ void loop() {
 	rtc1.updateTime();
 
 	if(to_send){
+		
 		to_send = false;
-
+		
 		pkg.data.err = false;
 
-		if(to_send){
-			pkg.data.err = true;
-		}
 
 		pkg.id++;
-
-
-		
 
 		pkg.data.timestamp[0] = rtc1.seconds;
 		pkg.data.timestamp[1] = rtc1.minutes;
@@ -173,7 +157,7 @@ void loop() {
 			UPIS NA SD KARTICU
 			*/
 
-			String entry = "";
+			
 			entry += String(pkg.id) + '\t' +
 					 String(pkg.data.timestamp[0]) + '\t' + 
 					 String(pkg.data.timestamp[1])+ '\t' + 
@@ -185,17 +169,27 @@ void loop() {
 					 String(pkg.data.val_array[2]) + '\t' +
 					 String(pkg.data.val_array[3]) + '\t' +
 					 String(pkg.data.val_array[4]) + '\t' +
-					 String(pkg.data.val_array[5]);
-
+					 String(pkg.data.val_array[5]) + '\n';
+					 
+			Serial.println(entry);
+			/*entries[entry_select] = entry;
+			//Serial.println(entries[entry_select]);*/
+			entry_select++;
 			
+		}
 
+		if(entry_select == PKG_LEN) {
+			
+			//ispis svega
 			File sd_fd = SD.open("aclogger/log.txt", FILE_WRITE);
-		
+			
 			if(sd_fd) {
 				
-				sd_fd.println(entry);
+				sd_fd.print(entry);
+
 				sd_fd.close();
-				Serial.println(entry);
+
+				
 
 			}
 			else {
@@ -203,44 +197,8 @@ void loop() {
 				Serial.println("Couldn't open log file.\n");
 			}
 
-			
-		}
-
-
-
-		/*Serial.write("[1] = ");
-		String data1 = String(pkg.val_array[1]);
-		Serial.println(data1);
-		Serial.write("\n");
-
-		Serial.write("[2] = ");
-		String data2 = String(pkg.val_array[2]);
-		Serial.println(data2);
-		Serial.write("\n");
-
-		Serial.write("[3] = ");
-		String data3 = String(pkg.val_array[3]);
-		Serial.println(data3);
-		Serial.write("\n");
-
-		Serial.write("[4] = ");
-		String data4 = String(pkg.val_array[4]);
-		Serial.println(data4);
-		Serial.write("\n");
-
-		Serial.write("[5] = ");
-		String data5 = String(pkg.val_array[5]);
-		Serial.println(data5);
-		Serial.write("\n");*/
-
-		
-
-		delay(1);
-		//uint16_t reading = pkg.val_array[0];
-		//Serial.write("aleksa\n");
-
-		//Serial.write((uint8_t *)&pkg, sizeof(pkg));
-
+			entry = "";
+			entry_select = 0;
+		}	
 	}
-	//Serial.write("LOOP");
 }
